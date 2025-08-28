@@ -1,4 +1,4 @@
-use std::{collections::HashSet, fmt::Display, mem::replace, usize};
+use std::{collections::HashSet, fmt::Display, mem::replace};
 
 use clap::Parser;
 use rand::{
@@ -23,26 +23,26 @@ where
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out = String::new();
 
-        out.push_str("[");
+        out.push('[');
 
         let n = self.0.len();
 
         for i in 0..n {
-            out.push_str("[");
+            out.push('[');
             for j in 0..n {
                 out.push_str(&self.0[i][j].to_string());
                 if j != n - 1 {
                     out.push_str(", ");
                 }
             }
-            out.push_str("]");
+            out.push(']');
             if i != n - 1 {
                 out.push_str(", ");
             }
         }
 
-        out.push_str("]");
-        write!(f, "{}", out)
+        out.push(']');
+        write!(f, "{out}")
     }
 }
 
