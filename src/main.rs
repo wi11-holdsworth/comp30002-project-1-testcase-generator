@@ -8,12 +8,14 @@ use rand::{
 };
 
 #[derive(Parser, Debug)]
-#[command(version, about, long_about = None)]
+#[command(name = "gentest", version = "0.1.0", about = "Produces test cases for COMP30002 Project 1.\n\nA test case is:\n  1. a query that can be copy-pasted directly into swipl\n  2. one possible expected output", long_about = None)]
 struct Args {
     #[arg(short, long, value_parser=clap::value_parser!(u8).range(2..4+1))]
+    /// Number of rows (and columns) must be in [2,4]
     dimension: u8,
 }
 
+// wrapper that lets us implement Display for a 2d array
 struct Test<T: ToString>(Vec<Vec<T>>);
 
 impl<T> Display for Test<T>
@@ -46,7 +48,8 @@ where
     }
 }
 
-fn gen_test(dimension: usize) -> (Vec<Vec<String>>, Vec<Vec<usize>>) {
+// generate a potentially valid test case
+fn gen_one_test(dimension: usize) -> (Vec<Vec<String>>, Vec<Vec<usize>>) {
     let mut matrix = vec![];
     let mut rng = rng();
     let diagonal = rng.random_range(1..9 + 1);
@@ -95,7 +98,8 @@ fn valid_test(transposed: &Vec<Vec<usize>>) -> bool {
     true
 }
 
-fn mask(matrix: &Vec<Vec<usize>>) -> Vec<Vec<String>> {
+// replace non-total cells with "_" blank
+fn mask(matrix: &[Vec<usize>]) -> Vec<Vec<String>> {
     let rows = matrix.len();
     let cols = matrix[0].len();
 
@@ -115,7 +119,7 @@ fn mask(matrix: &Vec<Vec<usize>>) -> Vec<Vec<String>> {
         .collect()
 }
 
-fn transpose(matrix: &mut Vec<Vec<usize>>) -> Vec<Vec<usize>> {
+fn transpose(matrix: &mut [Vec<usize>]) -> Vec<Vec<usize>> {
     let rows = matrix.len();
     let cols = matrix[0].len();
 
@@ -141,7 +145,8 @@ fn gen_row(index: usize, diagonal: usize, dimension: usize, rng: &mut ThreadRng)
     row
 }
 
-fn random_total(row: &Vec<usize>, rng: &mut ThreadRng) -> usize {
+// the total for a row can either be the sum or the product
+fn random_total(row: &[usize], rng: &mut ThreadRng) -> usize {
     let totals = [row.iter().sum(), row.iter().product()];
     *totals.choose(rng).unwrap()
 }
