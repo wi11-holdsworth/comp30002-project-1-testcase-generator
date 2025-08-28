@@ -71,6 +71,19 @@ fn gen_test(dimension: usize) -> (Vec<Vec<String>>, Vec<Vec<usize>>) {
     (mask(&transposed), transposed)
 }
 
+// keep generating test cases until a valid test is generated
+fn gen_test(dimension: usize) -> (Vec<Vec<String>>, Vec<Vec<usize>>) {
+    let (mut masked, mut unmasked) = gen_one_test(dimension);
+
+    // COMICALLY inefficient, but since we are only generating tiny matrixes it's fine
+    while !valid_test(&unmasked) {
+        (masked, unmasked) = gen_one_test(dimension);
+    }
+
+    (masked, unmasked)
+}
+
+// verify distinctness of columns (transposed rows), everything else about the test is valid at this point
 fn valid_test(transposed: &Vec<Vec<usize>>) -> bool {
     for row in transposed {
         let set: HashSet<&usize> = HashSet::from_iter(row);
@@ -135,11 +148,7 @@ fn random_total(row: &Vec<usize>, rng: &mut ThreadRng) -> usize {
 
 fn main() {
     let args = Args::parse();
-    let (mut masked, mut unmasked) = gen_test(args.dimension.into());
-
-    while !valid_test(&unmasked) {
-        (masked, unmasked) = gen_test(args.dimension.into());
-    }
+    let (masked, unmasked) = gen_test(args.dimension.into());
 
     println!("Puzzle = {}, puzzle_solution(Puzzle).", Test(masked));
     println!("Puzzle = {}", Test(unmasked));
